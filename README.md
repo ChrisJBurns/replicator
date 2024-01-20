@@ -2,6 +2,8 @@
 
 > NOTE: Since `replicator` isn't the greatest name in the world, and [naming things](https://martinfowler.com/bliki/TwoHardThings.html) is one of the hardest things in computer science, we will delay making a decision on a name until a better one has been thought of. So for now, introducing, `replicator`....
 
+> NOTE: Replicator is a new repository that has no real functionality yet, but the aims of what it tries to achieve are detailed below.
+
 ## What is Replicator?
 
 Replicator is an open-source tool that aims to fill a current gap in the software supply chain world. It aims to offer engineers a more declarative way of managing their OCI artifacts, with the added capability of verification.
