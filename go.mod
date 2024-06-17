@@ -3,7 +3,7 @@ module replicator
 go 1.21.6
 
 require (
-	github.com/google/go-containerregistry v0.17.0
+	github.com/google/go-containerregistry v0.19.2
 	gopkg.in/yaml.v3 v3.0.1
 )
 
