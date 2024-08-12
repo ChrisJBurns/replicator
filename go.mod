@@ -4,6 +4,7 @@ go 1.21.6
 
 require (
 	github.com/google/go-containerregistry v0.17.0
+	github.com/supercaracal/scram-sha-256 v1.0.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -24,6 +25,8 @@ require (
 	github.com/sirupsen/logrus v1.9.1 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/vbatts/tar-split v0.11.3 // indirect
+	golang.org/x/crypto v0.0.0-20220926161630-eccd6366d1be // indirect
 	golang.org/x/sync v0.2.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 // indirect
 )
