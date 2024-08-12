@@ -1,35 +1,41 @@
 registries:
   - name: default
     url: ghcr.io
+  - name: docker.io
+    url: docker.io
 
 images:
   - name: busybox
-    url: docker.io/busybox
-    tag: 1.35.0
-    digest: sha256:462231a4068d238616e330a49aa4c0896a61c4003adde5cbe6879caa7f1992de
-    push-location:
+    source:
+      registry: docker.io
+      image: docker.io/busybox:1.35.0@sha256:462231a4068d238616e330a49aa4c0896a61c4003adde5cbe6879caa7f1992de
+      # imagePath: busybox/busybox
+      # tag: 1.35.0
+      # digest: sha256:462231a4068d238616e330a49aa4c0896a61c4003adde5cbe6879caa7f1992de
+    target:
       registry: default
-      path: chrisjburns/busybox
+      image: ghcr.io/chrisjburns/busybox
+      additionalTags: []
     cosigned:
       enabled: true
       signature:
   - name: alpine
-    url: docker.io/alpine
-    tag: 3.19.1
-    digest: sha256:6457d53fb065d6f250e1504b9bc42d5b6c65941d57532c072d929dd0628977d0
+    source:
+      registry: docker.io
+      image: docker.io/alpine:3.19.1@sha256:6457d53fb065d6f250e1504b9bc42d5b6c65941d57532c072d929dd0628977d0
+    target:
+      registry: default
+      image: ghcr.io/chrisjburns/alpine
     cosigned:
       enabled: true
       signature:
-    push-location:
-      registry: default
-      path: chrisjburns/alpine
-  - name: apko
-    url: cgr.dev/chainguard/apko
-    tag: latest
-    digest: sha256:639ac35872be86cc42e5683c3b87fbcf7a606ca400eb4ab240c9d05ac3167ecf
-    cosigned:
-      enabled: true
-      signature:
-    push-location:
-      registry: default
-      path: chrisjburns/apko
+  # - name: apko
+  #   url: cgr.dev/chainguard/apko
+  #   tag: latest
+  #   digest: sha256:639ac35872be86cc42e5683c3b87fbcf7a606ca400eb4ab240c9d05ac3167ecf
+  #   cosigned:
+  #     enabled: true
+  #     signature:
+  #   target-location:
+  #     registry: default
+  #     path: chrisjburns/apko

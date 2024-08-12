@@ -3,28 +3,40 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
-	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
-	"github.com/google/go-containerregistry/pkg/v1/tarball"
 	"gopkg.in/yaml.v3"
 )
 
 type Image struct {
-	Name     string `yaml:"name"`
-	Url      string `yaml:"url"`
-	Tag      string `yaml:"tag"`
-	Digest   string `yaml:"digest"`
+	Name   string `yaml:"name"`
+	Source Source `yaml:"source"`
+	Target Target `yaml:"target"`
+	// Url      string `yaml:"url"`
+	// Tag      string `yaml:"tag"`
+	// Digest   string `yaml:"digest"`
 	Cosigned struct {
 		Enabled   string `yaml:"enabled"`
 		Signature string `yaml:"signature"`
 	}
-	PushLocation struct {
+	TargetLocation struct {
 		Registry string `yaml:"registry"`
 		Path     string `yaml:"path"`
-	} `yaml:"push-location"`
+	} `yaml:"target-location"`
+}
+
+type Source struct {
+	Registry string `yaml:"registry"`
+	Image    string `yaml:"image"`
+}
+
+type Target struct {
+	Registry       string   `yaml:"registry"`
+	Image          string   `yaml:"image"`
+	AdditionalTags []string `yaml:"additionalTags"`
 }
 
 type Registry struct {
@@ -45,42 +57,56 @@ func buildImageUrl(imageUrl string, imageTag string, imageDigest string) string 
 	return fmt.Sprintf("%s:%s@%s", imageUrl, imageTag, imageDigest)
 }
 
+func getImageTag(image string) string {
+	if strings.ContainsAny(image, "@sha256:") {
+		tag := strings.Split(image, ":")[1]
+		tag = strings.Split(tag, "@")[0]
+		fmt.Printf("Tag is: %s \n", tag)
+		return tag
+	}
+
+	tag := strings.Split(image, ":")[1]
+	fmt.Printf("Tag is: %s \n", tag)
+	return tag
+}
+
 func main() {
 	t := readFile()
 
 	for _, image := range t.Images {
-		imageUrl := buildImageUrl(image.Url, image.Tag, image.Digest)
-		ref, err := name.ParseReference(imageUrl)
+		getImageTag(image.Source.Image)
+		// imageUrl := buildImageUrl(image.Url, image.Tag, image.Digest)
+		ref, err := name.ParseReference(image.Source.Image)
 		check(err)
 
 		fmt.Printf("Downloading image: %s... \n", image.Name)
 		img, err := remote.Image(ref, remote.WithAuthFromKeychain(authn.DefaultKeychain))
 		check(err)
 		fmt.Printf("Downloaded image: %s \n", image.Name)
-		// fmt.Printf("image details: %v \n", img)
+		fmt.Printf("image details: %v \n", img)
 
-		hash, err := img.Digest()
+		// hash, err := img.Digest()
+		// check(err)
+
+		// if image.Digest == hash.String() {
+		// 	fmt.Println("digest verified")
+		// }
+
+		// newPlace := getRegistryUrl(t, image)
+		// newUrl := fmt.Sprintf("%s/%s:%s", newPlace, image.TargetLocation.Path, image.Tag)
+		tag, err := name.ParseReference(image.Target.Image)
 		check(err)
 
-		if image.Digest == hash.String() {
-			fmt.Println("digest verified")
-		}
-
-		newPlace := getRegistryUrl(t, image)
-		newUrl := fmt.Sprintf("%s/%s:%s", newPlace, image.PushLocation.Path, image.Tag)
-		tag, err := name.ParseReference(newUrl)
-		check(err)
-
-		fmt.Printf("Pushing image: %s ... \n", newUrl)
+		fmt.Printf("Pushing image: %s ... \n", image.Target.Image)
 
 		remote.Write(tag, img, remote.WithAuthFromKeychain(authn.DefaultKeychain))
-		fmt.Printf("Pushed image: %s \n", newUrl)
+		fmt.Printf("Pushed image: %s \n", image.Target.Image)
 	}
 }
 
 func getRegistryUrl(t T, image Image) string {
 	for _, r := range t.Registries {
-		if r.Name == image.PushLocation.Registry {
+		if r.Name == image.TargetLocation.Registry {
 			return r.Url
 		}
 	}
@@ -103,17 +129,17 @@ func check(e error) {
 }
 
 // unused for now
-func createFile(image Image, img v1.Image) {
-	fp, err := os.CreateTemp(".", fmt.Sprintf("%s-%s", image.Name, image.Tag))
-	check(err)
+// func createFile(image Image, img v1.Image) {
+// 	fp, err := os.CreateTemp(".", fmt.Sprintf("%s-%s", image.Name, image.Tag))
+// 	check(err)
 
-	newTag, err := name.NewTag(fmt.Sprintf("%s:%s", image.Name, image.Tag))
-	check(err)
+// 	newTag, err := name.NewTag(fmt.Sprintf("%s:%s", image.Name, image.Tag))
+// 	check(err)
 
-	defer fp.Close()
-	fmt.Println("Writing to tarball...")
-	if err := tarball.Write(newTag, img, fp); err != nil {
-		panic(fmt.Errorf("error writing image to tarball: %v", err))
-	}
-	fmt.Println("Written")
-}
+// 	defer fp.Close()
+// 	fmt.Println("Writing to tarball...")
+// 	if err := tarball.Write(newTag, img, fp); err != nil {
+// 		panic(fmt.Errorf("error writing image to tarball: %v", err))
+// 	}
+// 	fmt.Println("Written")
+// }
