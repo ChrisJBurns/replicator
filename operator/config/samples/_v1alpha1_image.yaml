@@ -1,0 +1,15 @@
+apiVersion: my.domain/v1alpha1
+kind: Image
+metadata:
+  labels:
+    app.kubernetes.io/name: image
+    app.kubernetes.io/instance: image-sample
+    app.kubernetes.io/part-of: operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: operator
+  name: image-sample
+spec:
+  imageSource:
+    url: docker.io/busybox:1.36.0
+  imageDestination:
+    url: ghcr.io/chrisjburns/busybox
